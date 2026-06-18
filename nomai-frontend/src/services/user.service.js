@@ -28,7 +28,7 @@ async function create(data) {
 }
 
 async function update(id, data) {
-  const response = await userApi.patch(`/${id}`, data)
+  const response = await userApi.put(`/${id}`, data)
   return response.data?.data ?? response.data
 }
 

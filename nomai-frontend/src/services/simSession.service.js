@@ -28,7 +28,7 @@ async function create(data) {
 }
 
 async function update(id, data) {
-  const response = await simSessionApi.patch(`/${id}`, data)
+  const response = await simSessionApi.put(`/${id}`, data)
   return response.data?.data ?? response.data
 }
 

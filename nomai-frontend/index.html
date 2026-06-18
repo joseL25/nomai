@@ -4,6 +4,71 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NomAI</title>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+     <style>
+       * {
+         margin: 0;
+         padding: 0;
+         box-sizing: border-box;
+       }
+
+       html, body, #root {
+         width: 100%;
+         height: 100%;
+       }
+
+       body {
+         background: #15121b;
+         color: #e8dfee;
+         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         font-size: 16px;
+         line-height: 1.5;
+         -webkit-font-smoothing: antialiased;
+         -moz-osx-font-smoothing: grayscale;
+       }
+
+       /* Input styling */
+       input::-webkit-outer-spin-button,
+       input::-webkit-inner-spin-button {
+         -webkit-appearance: none;
+         margin: 0;
+       }
+
+       input[type=number] {
+         -moz-appearance: textfield;
+       }
+
+       input,
+       textarea,
+       select {
+         font-family: inherit;
+       }
+
+       /* Scrollbar */
+       ::-webkit-scrollbar {
+         width: 8px;
+         height: 8px;
+       }
+
+       ::-webkit-scrollbar-track {
+         background: transparent;
+       }
+
+       ::-webkit-scrollbar-thumb {
+         background: rgba(124, 58, 237, 0.5);
+         border-radius: 4px;
+       }
+
+       ::-webkit-scrollbar-thumb:hover {
+         background: rgba(124, 58, 237, 0.8);
+       }
+
+       /* Firefox scrollbar */
+       * {
+         scrollbar-color: rgba(124, 58, 237, 0.5) transparent;
+         scrollbar-width: thin;
+       }
+     </style>
   </head>
   <body>
     <div id="root"></div>

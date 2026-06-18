@@ -187,6 +187,33 @@ export const service = {
 
 ---
 
+## 🎨 Diseño Visual Implementado
+
+### Principios de diseño
+- **Dark mode premium** con fondo `#15121b` y texto principal `#e8dfee`.
+- **Glass-card effect** en tarjetas y formularios usando `backdrop-filter: blur(12px)` y bordes translucidos.
+- **Paleta de colores** basada en Stitch: púrpura `#7c3aed`, azul `#2563eb`, cian `#4cd7f6`, verde `#16a34a` y rojo `#ef4444`.
+- **Tipografía** con `Inter`, jerarquía visual clara y tamaños acordes a los diseños (headline-xl, headline-lg, body-md).
+- **Interacción** con hover suaves, botones elevados y estados de foco en inputs.
+
+### Componentes estilizados
+- **`SimSessionList`**: tarjetas responsive con estado, etiquetas de modo y estado, detalles agrupados y animación al pasar el mouse.
+- **`UserList`**: diseño coherente con `SimSessionList`, grid responsive y tarjetas glass con información del usuario.
+- **`SimSessionForm`**: formulario con contenedor glass-card, inputs estilizados y botones primarios/claro.
+- **`UserForm`**: mismo estilo que el formulario de simulaciones, con selects y botones consistentes.
+- **`Nav`**: barra de navegación glass, estado activo visible y estilo dark.
+- **`App`**: layout global con fondo oscuro, tipografía Stitch y estructura de secciones bien diferenciadas.
+- **`index.html`**: estilos globales para tipografía, scrollbars, inputs y reset básico.
+
+### Lógica preservada
+- `useEffect` con dependencias de refresco en los listados.
+- Fetch al service (`simSessionService`, `userService`) sin alterar la estructura de datos.
+- Estados de componente: `loading`, `error`, `empty`.
+- Uso de `.map()` para renderizar listas.
+- Campos originales de los modelos de sesión y usuario respetados.
+
+---
+
 ## 🚀 Quick Start
 
 ### Backend
