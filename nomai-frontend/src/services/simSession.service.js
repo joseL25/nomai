@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { API_BASE } from '../api.base'
 
 const simSessionApi = axios.create({
-  baseURL: '/api/sia'
+  baseURL: `${API_BASE}/sia`
 })
 
 export const simSessionService = {

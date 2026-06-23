@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { API_BASE } from '../api.base'
 
 const userApi = axios.create({
-  baseURL: '/api/users'
+  baseURL: `${API_BASE}/users`
 })
 
 export const userService = {
