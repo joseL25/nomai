@@ -33,7 +33,7 @@ NomAI es una plataforma educativa donde freelancers junior adquieren experiencia
 └─────────────────────────────────────────┘
               ↕
 ┌─────────────────────────────────────────┐
-│    Models (In-Memory - Development)     │
+│        Models (Supabase Database)       │
 │  - SimSession Model                      │
 │  - User Model                            │
 └─────────────────────────────────────────┘
@@ -46,12 +46,13 @@ nomAI/
 ├── nomai-backend/
 │   ├── src/
 │   │   ├── app.js                    # Express app setup
+│   │   ├── supabase.js               # Supabase client setup
 │   │   ├── controllers/
 │   │   │   ├── simsession.controller.js
 │   │   │   └── user.controller.js
 │   │   ├── models/
-│   │   │   ├── simsession.model.js   # SimSession CRUD (in-memory)
-│   │   │   └── user.model.js         # User CRUD (in-memory)
+│   │   │   ├── simsession.model.js   # SimSession CRUD (Supabase)
+│   │   │   └── user.model.js         # User CRUD (Supabase)
 │   │   ├── routes/
 │   │   │   ├── index.routes.js       # Main router
 │   │   │   ├── simsessions.routes.js # POST/GET /api/sia
@@ -108,7 +109,7 @@ nomAI/
 **User Model**
 ```javascript
 {
-  id: string (UUID),
+  id: int8 (integer),
   email: string (unique),
   password_hash: string,
   full_name: string,
@@ -123,8 +124,8 @@ nomAI/
 **SimSession Model**
 ```javascript
 {
-  id: string (UUID),
-  user_id: string,
+  id: int8 (integer),
+  user_id: int8 (integer),
   project_id: string,
   company_id: string,
   ai_persona_id: string,
@@ -218,12 +219,20 @@ export const service = {
 
 ### Backend
 
-```bash
-cd nomai-backend
-npm install
-npm run dev
-# Server runs on http://localhost:3000
-```
+1. Configurar variables de entorno: crea un archivo `.env` en la raíz de `nomai-backend/` (y/o en la raíz del proyecto) con las siguientes variables:
+   ```env
+   PORT=3000
+   SUPABASE_URL=https://tu_proyecto.supabase.co
+   SUPABASE_ANON_KEY=tu_clave_anon_de_supabase
+   ```
+
+2. Instalar dependencias e iniciar el servidor de desarrollo:
+   ```bash
+   cd nomai-backend
+   npm install
+   npm run dev
+   # El servidor corre en http://localhost:3000
+   ```
 
 ### Frontend
 
@@ -241,8 +250,9 @@ npm run dev
 
 - ✅ Estructura de carpetas backend/frontend
 - ✅ Express setup con CORS + routes
-- ✅ SimSession y User models (in-memory)
-- ✅ Controllers con serialización
+- ✅ Inicialización y configuración de cliente de Supabase
+- ✅ SimSession y User models migrados de in-memory a Supabase (PostgreSQL)
+- ✅ Controladores adaptados a llamadas asíncronas con async/await
 - ✅ Frontend Vite + React bootstrap
 - ✅ Services con Axios (CRUD)
 - ✅ Componentes iniciales (List/Form)
@@ -259,9 +269,9 @@ npm run dev
   - [ ] Endpoint POST `/api/auth/register`
   - [ ] Middleware de validación JWT
   - [ ] Refresh tokens
-  
+
 - [ ] **Persistencia de datos**
-  - [ ] Migrar de in-memory a base de datos (MongoDB o PostgreSQL)
+  - [ ] Crear seeds y datos iniciales para la base de datos de Supabase
   - [ ] Crear migrations/seeds
 
 - [ ] **Validación de formularios**

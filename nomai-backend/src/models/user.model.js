@@ -1,21 +1,7 @@
-import crypto from 'crypto';
+import { supabase } from '../supabase.js';
 
 const ROLE_VALUES = ['freelancer', 'recruiter', 'admin'];
 const STATUS_VALUES = ['active', 'suspended', 'pending_verification'];
-
-const initialUsers = [
-  {
-    id: 'user-123',
-    email: 'admin@nomai.app',
-    password_hash: '$2b$10$mockedPasswordHash',
-    full_name: 'Admin User',
-    avatar_url: null,
-    role: 'admin',
-    status: 'active',
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-];
 
 const validateUserPayload = (payload, { isCreate = false } = {}) => {
   const requiredFields = ['email', 'password_hash', 'full_name', 'role', 'status'];
@@ -38,77 +24,155 @@ const validateUserPayload = (payload, { isCreate = false } = {}) => {
 };
 
 export default class UserModel {
-  constructor() {
-    this.users = [...initialUsers];
+  async getAll() {
+    try {
+      const { data, error } = await supabase
+        .from('User')
+        .select('*');
+
+      if (error) {
+        throw error;
+      }
+      return data || [];
+    } catch (error) {
+      console.error('Error in UserModel.getAll:', error.message);
+      throw error;
+    }
   }
 
-  getAll() {
-    return [...this.users];
+  async getById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('User')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in UserModel.getById for id ${id}:`, error.message);
+      throw error;
+    }
   }
 
-  getById(id) {
-    return this.users.find((user) => user.id === id) || null;
-  }
-
-  create(payload) {
+  async create(payload) {
     validateUserPayload(payload, { isCreate: true });
 
-    const emailExists = this.users.some((user) => user.email === payload.email);
-    if (emailExists) {
-      throw new Error('Email already registered');
-    }
+    try {
+      // Check email uniqueness
+      const { data: existingUser, error: checkError } = await supabase
+        .from('User')
+        .select('id')
+        .eq('email', payload.email)
+        .maybeSingle();
 
-    const now = new Date().toISOString();
-    const user = {
-      id: crypto.randomUUID?.() || crypto.randomBytes(16).toString('hex'),
-      email: payload.email,
-      password_hash: payload.password_hash,
-      full_name: payload.full_name,
-      avatar_url: payload.avatar_url ?? null,
-      role: payload.role,
-      status: payload.status,
-      created_at: now,
-      updated_at: now,
-    };
+      if (checkError) {
+        throw checkError;
+      }
 
-    this.users.push(user);
-    return user;
-  }
-
-  update(id, payload) {
-    const existingIndex = this.users.findIndex((user) => user.id === id);
-    if (existingIndex === -1) {
-      return null;
-    }
-
-    validateUserPayload(payload, { isCreate: false });
-
-    const existingUser = this.users[existingIndex];
-    if (payload.email && payload.email !== existingUser.email) {
-      const emailExists = this.users.some((user) => user.email === payload.email);
-      if (emailExists) {
+      if (existingUser) {
         throw new Error('Email already registered');
       }
+
+      const now = new Date().toISOString();
+      const insertData = {
+        email: payload.email,
+        password_hash: payload.password_hash,
+        full_name: payload.full_name,
+        avatar_url: payload.avatar_url ?? null,
+        role: payload.role,
+        status: payload.status,
+        created_at: now,
+        updated_at: now,
+      };
+
+      const { data, error } = await supabase
+        .from('User')
+        .insert([insertData])
+        .select()
+        .single();
+
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('Email already registered');
+        }
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error in UserModel.create:', error.message);
+      throw error;
     }
-
-    const updatedUser = {
-      ...existingUser,
-      ...payload,
-      avatar_url: payload.avatar_url ?? existingUser.avatar_url,
-      updated_at: new Date().toISOString(),
-    };
-
-    this.users[existingIndex] = updatedUser;
-    return updatedUser;
   }
 
-  remove(id) {
-    const existingIndex = this.users.findIndex((user) => user.id === id);
-    if (existingIndex === -1) {
-      return null;
-    }
+  async update(id, payload) {
+    validateUserPayload(payload, { isCreate: false });
 
-    const [removedUser] = this.users.splice(existingIndex, 1);
-    return removedUser;
+    try {
+      if (payload.email) {
+        const { data: existingUser, error: checkError } = await supabase
+          .from('User')
+          .select('id, email')
+          .eq('email', payload.email)
+          .maybeSingle();
+
+        if (checkError) {
+          throw checkError;
+        }
+
+        if (existingUser && String(existingUser.id) !== String(id)) {
+          throw new Error('Email already registered');
+        }
+      }
+
+      const updateData = {
+        ...payload,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Remove read-only or auto-generated fields
+      delete updateData.id;
+      delete updateData.created_at;
+
+      const { data, error } = await supabase
+        .from('User')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        if (error.code === '23505') {
+          throw new Error('Email already registered');
+        }
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in UserModel.update for id ${id}:`, error.message);
+      throw error;
+    }
+  }
+
+  async remove(id) {
+    try {
+      const { data, error } = await supabase
+        .from('User')
+        .delete()
+        .eq('id', id)
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in UserModel.remove for id ${id}:`, error.message);
+      throw error;
+    }
   }
 }

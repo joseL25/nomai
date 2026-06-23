@@ -13,36 +13,44 @@ const serializeUser = (user) => ({
   updated_at: user.updated_at,
 });
 
-export const getAll = (req, res) => {
-  const users = userModel.getAll();
-  res.status(200).json(users.map(serializeUser));
-};
-
-export const getById = (req, res) => {
-  const { id } = req.params;
-  const user = userModel.getById(id);
-
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  res.status(200).json(serializeUser(user));
-};
-
-export const create = (req, res) => {
+export const getAll = async (req, res) => {
   try {
-    const createdUser = userModel.create(req.body);
+    const users = await userModel.getAll();
+    res.status(200).json(users.map(serializeUser));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const user = await userModel.getById(id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(200).json(serializeUser(user));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const create = async (req, res) => {
+  try {
+    const createdUser = await userModel.create(req.body);
     res.status(201).json(serializeUser(createdUser));
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-export const update = (req, res) => {
+export const update = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const updatedUser = userModel.update(id, req.body);
+    const updatedUser = await userModel.update(id, req.body);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -52,13 +60,17 @@ export const update = (req, res) => {
   }
 };
 
-export const remove = (req, res) => {
+export const remove = async (req, res) => {
   const { id } = req.params;
-  const deletedUser = userModel.remove(id);
+  try {
+    const deletedUser = await userModel.remove(id);
 
-  if (!deletedUser) {
-    return res.status(404).json({ message: 'User not found' });
+    if (!deletedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  res.status(204).send();
 };

@@ -19,36 +19,44 @@ const serializeSimSession = (session) => ({
   created_at: session.created_at,
 });
 
-export const getAll = (req, res) => {
-  const sessions = simSessionModel.getAll();
-  res.status(200).json(sessions.map(serializeSimSession));
-};
-
-export const getById = (req, res) => {
-  const { id } = req.params;
-  const session = simSessionModel.getById(id);
-
-  if (!session) {
-    return res.status(404).json({ message: 'SimSession not found' });
-  }
-
-  res.status(200).json(serializeSimSession(session));
-};
-
-export const create = (req, res) => {
+export const getAll = async (req, res) => {
   try {
-    const createdSession = simSessionModel.create(req.body);
+    const sessions = await simSessionModel.getAll();
+    res.status(200).json(sessions.map(serializeSimSession));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const getById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const session = await simSessionModel.getById(id);
+
+    if (!session) {
+      return res.status(404).json({ message: 'SimSession not found' });
+    }
+
+    res.status(200).json(serializeSimSession(session));
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const create = async (req, res) => {
+  try {
+    const createdSession = await simSessionModel.create(req.body);
     res.status(201).json(serializeSimSession(createdSession));
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
 };
 
-export const update = (req, res) => {
+export const update = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const updatedSession = simSessionModel.update(id, req.body);
+    const updatedSession = await simSessionModel.update(id, req.body);
     if (!updatedSession) {
       return res.status(404).json({ message: 'SimSession not found' });
     }
@@ -58,13 +66,17 @@ export const update = (req, res) => {
   }
 };
 
-export const remove = (req, res) => {
+export const remove = async (req, res) => {
   const { id } = req.params;
-  const deletedSession = simSessionModel.remove(id);
+  try {
+    const deletedSession = await simSessionModel.remove(id);
 
-  if (!deletedSession) {
-    return res.status(404).json({ message: 'SimSession not found' });
+    if (!deletedSession) {
+      return res.status(404).json({ message: 'SimSession not found' });
+    }
+
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
-
-  res.status(204).send();
 };

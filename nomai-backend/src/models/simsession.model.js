@@ -1,36 +1,7 @@
-import crypto from 'crypto';
+import { supabase } from '../supabase.js';
 
 const STATUS_VALUES = ['pending', 'active', 'completed', 'abandoned'];
 const MODE_VALUES = ['learning', 'recruitment'];
-
-const initialSimSessions = [
-  {
-    id: 'simsession-001',
-    user_id: 'user-123',
-    project_id: 'project-001',
-    company_id: 'company-001',
-    ai_persona_id: 'persona-001',
-    status: 'active',
-    mode: 'recruitment',
-    started_at: new Date().toISOString(),
-    completed_at: null,
-    deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    last_activity_at: new Date().toISOString(),
-    trigger_log: [
-      {
-        trigger_id: 'trigger-001',
-        event: 'session_started',
-        timestamp: new Date().toISOString(),
-        metadata: { ip: '192.168.1.1' },
-      },
-    ],
-    metadata: {
-      difficulty: 'intermediate',
-      tags: ['interview', 'backend'],
-    },
-    created_at: new Date().toISOString(),
-  },
-];
 
 const validateSimSessionPayload = (payload, { isCreate = false } = {}) => {
   const requiredFields = isCreate
@@ -38,7 +9,7 @@ const validateSimSessionPayload = (payload, { isCreate = false } = {}) => {
     : [];
 
   for (const field of requiredFields) {
-    if (!payload[field]) {
+    if (payload[field] === undefined || payload[field] === null || payload[field] === '') {
       throw new Error(`Missing required field: ${field}`);
     }
   }
@@ -61,71 +32,123 @@ const validateSimSessionPayload = (payload, { isCreate = false } = {}) => {
 };
 
 export default class SimSessionModel {
-  constructor() {
-    this.simSessions = [...initialSimSessions];
+  async getAll() {
+    try {
+      const { data, error } = await supabase
+        .from('SimSession')
+        .select('*');
+
+      if (error) {
+        throw error;
+      }
+      return data || [];
+    } catch (error) {
+      console.error('Error in SimSessionModel.getAll:', error.message);
+      throw error;
+    }
   }
 
-  getAll() {
-    return [...this.simSessions];
+  async getById(id) {
+    try {
+      const { data, error } = await supabase
+        .from('SimSession')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in SimSessionModel.getById for id ${id}:`, error.message);
+      throw error;
+    }
   }
 
-  getById(id) {
-    return this.simSessions.find((session) => session.id === id) || null;
-  }
-
-  create(payload) {
+  async create(payload) {
     validateSimSessionPayload(payload, { isCreate: true });
 
-    const now = new Date().toISOString();
-    const simSession = {
-      id: crypto.randomUUID?.() || `simsession-${crypto.randomBytes(8).toString('hex')}`,
-      user_id: payload.user_id,
-      project_id: payload.project_id,
-      company_id: payload.company_id,
-      ai_persona_id: payload.ai_persona_id,
-      status: payload.status,
-      mode: payload.mode,
-      started_at: payload.started_at ?? null,
-      completed_at: payload.completed_at ?? null,
-      deadline: payload.deadline ?? null,
-      last_activity_at: now,
-      trigger_log: payload.trigger_log ?? [],
-      metadata: payload.metadata ?? {},
-      created_at: now,
-    };
+    try {
+      const now = new Date().toISOString();
+      const insertData = {
+        user_id: payload.user_id,
+        project_id: payload.project_id,
+        company_id: payload.company_id,
+        ai_persona_id: payload.ai_persona_id,
+        status: payload.status,
+        mode: payload.mode,
+        started_at: payload.started_at ?? null,
+        completed_at: payload.completed_at ?? null,
+        deadline: payload.deadline ?? null,
+        last_activity_at: now,
+        trigger_log: payload.trigger_log ?? [],
+        metadata: payload.metadata ?? {},
+        created_at: now,
+      };
 
-    this.simSessions.push(simSession);
-    return simSession;
+      const { data, error } = await supabase
+        .from('SimSession')
+        .insert([insertData])
+        .select()
+        .single();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error('Error in SimSessionModel.create:', error.message);
+      throw error;
+    }
   }
 
-  update(id, payload) {
-    const existingIndex = this.simSessions.findIndex((session) => session.id === id);
-    if (existingIndex === -1) {
-      return null;
-    }
-
+  async update(id, payload) {
     validateSimSessionPayload(payload, { isCreate: false });
 
-    const existingSession = this.simSessions[existingIndex];
-    const updatedSession = {
-      ...existingSession,
-      ...payload,
-      trigger_log: payload.trigger_log ?? existingSession.trigger_log,
-      metadata: payload.metadata ?? existingSession.metadata,
-      last_activity_at: new Date().toISOString(),
-    };
+    try {
+      const updateData = {
+        ...payload,
+        last_activity_at: new Date().toISOString(),
+      };
 
-    this.simSessions[existingIndex] = updatedSession;
-    return updatedSession;
+      // Remove read-only or auto-generated fields if they are in payload
+      delete updateData.id;
+      delete updateData.created_at;
+
+      const { data, error } = await supabase
+        .from('SimSession')
+        .update(updateData)
+        .eq('id', id)
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in SimSessionModel.update for id ${id}:`, error.message);
+      throw error;
+    }
   }
 
-  remove(id) {
-    const existingIndex = this.simSessions.findIndex((session) => session.id === id);
-    if (existingIndex === -1) {
-      return null;
-    }
+  async remove(id) {
+    try {
+      const { data, error } = await supabase
+        .from('SimSession')
+        .delete()
+        .eq('id', id)
+        .select()
+        .maybeSingle();
 
-    const [removedSession] = this.simSessions.splice(existingIndex, 1);
-    return removedSession;
+      if (error) {
+        throw error;
+      }
+      return data;
+    } catch (error) {
+      console.error(`Error in SimSessionModel.remove for id ${id}:`, error.message);
+      throw error;
+    }
   }
 }
