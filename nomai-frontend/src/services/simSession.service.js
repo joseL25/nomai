@@ -1,8 +1,10 @@
 import axios from 'axios'
-import { API_BASE } from '../api.base'
 
 const simSessionApi = axios.create({
-  baseURL: `${API_BASE}/sia`
+  baseURL: import.meta.env.VITE_API_URL || "/api",
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 export const simSessionService = {
@@ -14,26 +16,26 @@ export const simSessionService = {
 }
 
 async function getAll() {
-  const response = await simSessionApi.get('/')
+  const response = await simSessionApi.get('/sia')
   return response.data?.data ?? response.data
 }
 
 async function getById(id) {
-  const response = await simSessionApi.get(`/${id}`)
+  const response = await simSessionApi.get(`/sia/${id}`)
   return response.data?.data ?? response.data
 }
 
 async function create(data) {
-  const response = await simSessionApi.post('/', data)
+  const response = await simSessionApi.post('/sia', data)
   return response.data?.data ?? response.data
 }
 
 async function update(id, data) {
-  const response = await simSessionApi.put(`/${id}`, data)
+  const response = await simSessionApi.put(`/sia/${id}`, data)
   return response.data?.data ?? response.data
 }
 
 async function remove(id) {
-  const response = await simSessionApi.delete(`/${id}`)
+  const response = await simSessionApi.delete(`/sia/${id}`)
   return response.data?.data ?? response.data
 }
