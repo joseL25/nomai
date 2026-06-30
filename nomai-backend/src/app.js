@@ -5,11 +5,7 @@ import notFoundMiddleware from './middlewares/notFound.middlewares.js';
 
 const app = express();
 
-// Middlewares globales
-app.use(cors({
-  origin: ['https://nomai.app'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-}));
+app.use(cors());
 app.use(express.json());
 
 // Montaje de rutas base
