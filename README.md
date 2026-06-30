@@ -1,252 +1,152 @@
-# 🚀 NomAI
+# nomAI
 
-**Plataforma de simulaciones realistas para freelancers junior**
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3ECF8E?logo=supabase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render&logoColor=white)
 
-NomAI es una plataforma educativa donde freelancers junior adquieren experiencia práctica mediante simulaciones de proyectos realistas. Evaluamos tanto habilidades técnicas como soft skills (comunicación, gestión del tiempo, resolución de problemas).
+NomAI es una plataforma web orientada a freelancers junior que simula escenarios reales de trabajo para que puedan practicar habilidades técnicas y blandas antes de enfrentar su primer proyecto profesional. La propuesta combina una experiencia de usuario moderna con un backend robusto y un modelo de datos persistente en Supabase.
 
----
+## ¿Qué hace nomAI?
 
-## 📋 Visión del Proyecto
+NomAI ayuda a los usuarios a:
 
-- **Target**: Freelancers junior sin experiencia profesional
-- **Objetivo**: Preparar developers para proyectos reales mediante simulaciones de clientes, requisitos ambiguos y feedback continuo
-- **Diferenciador**: Evaluación integral (técnico + soft skills)
-- **Modelo**: Simulaciones gamificadas con retroalimentación de IA
+- practicar con clientes simulados y requisitos ambiguos;
+- desarrollar habilidades de comunicación, organización y resolución de problemas;
+- experimentar con flujos de gestión de sesiones y usuarios en un entorno controlado;
+- prepararse de forma más realista para el mundo freelance.
 
----
+Este proyecto está pensado para estudiantes, juniors y perfiles que buscan una forma práctica de entrenar para el trabajo real.
 
-## 🏗️ Arquitectura
+## Stack tecnológico
 
-### Stack Tecnológico
+| Área | Tecnología | Documentación |
+|---|---|---|
+| Frontend | React | https://react.dev/ |
+| Build tool | Vite | https://vite.dev/ |
+| Backend | Node.js + Express | https://nodejs.org/ | https://expressjs.com/ |
+| Base de datos | Supabase | https://supabase.com/docs |
+| HTTP client | Axios | https://axios-http.com/docs/intro |
+| Deploy frontend | Vercel | https://vercel.com/docs |
+| Deploy backend | Render | https://render.com/docs |
 
-```
-┌─────────────────────────────────────────┐
-│         Frontend (nomai-frontend)        │
-│  Vite + React + Axios                   │
-│  http://localhost:5174                  │
-└─────────────────────────────────────────┘
-              ↕ (Proxy /api)
-┌─────────────────────────────────────────┐
-│        Backend (nomai-backend)           │
-│  Node.js + Express                       │
-│  http://localhost:3000                  │
-└─────────────────────────────────────────┘
-              ↕
-┌─────────────────────────────────────────┐
-│        Models (Supabase Database)       │
-│  - SimSession Model                      │
-│  - User Model                            │
-└─────────────────────────────────────────┘
-```
+## Arquitectura
 
-### Estructura de Carpetas
+NomAI sigue una arquitectura de monorepo con dos partes claramente separadas:
 
-```
+```text
 nomAI/
-├── nomai-backend/
-│   ├── src/
-│   │   ├── app.js                    # Express app setup
-│   │   ├── supabase.js               # Supabase client setup
-│   │   ├── controllers/
-│   │   │   ├── simsession.controller.js
-│   │   │   └── user.controller.js
-│   │   ├── models/
-│   │   │   ├── simsession.model.js   # SimSession CRUD (Supabase)
-│   │   │   └── user.model.js         # User CRUD (Supabase)
-│   │   ├── routes/
-│   │   │   ├── index.routes.js       # Main router
-│   │   │   ├── simsessions.routes.js # POST/GET /api/sia
-│   │   │   └── users.routes.js       # POST/GET /api/users
-│   │   └── middlewares/
-│   │       └── notFound.middlewares.js
-│   ├── index.js                      # Server entry point
-│   └── package.json
-│
-├── nomai-frontend/
-│   ├── src/
-│   │   ├── main.jsx                  # React entry
-│   │   ├── App.jsx                   # Main component
-│   │   ├── services/
-│   │   │   ├── simSession.service.js # GET/POST /api/sia
-│   │   │   └── user.service.js       # GET/POST /api/users
-│   │   └── components/
-│   │       ├── SimSessionList.jsx    # Display sessions
-│   │       ├── SimSessionForm.jsx    # Create session
-│   │       ├── UserList.jsx          # Display users
-│   │       └── UserForm.jsx          # Create user
-│   ├── vite.config.js                # Vite + proxy config
-│   ├── index.html
-│   ├── package.json
-│   └── package-lock.json
-│
-└── README.md
+├── nomai-backend/   # API REST en Node.js + Express
+└── nomai-frontend/  # interfaz en React + Vite
 ```
 
----
+### Flujo general
 
-## 🛠️ Especificaciones
+1. El frontend consume la API del backend desde la ruta `/api`.
+2. El backend gestiona la lógica de negocio y la conexión con Supabase.
+3. La base de datos almacena entidades como usuarios y sesiones de simulación.
 
-### Backend API
+## Estructura del proyecto
 
-#### Endpoints
+```text
+nomai-backend/
+├── src/
+│   ├── app.js
+│   ├── routes/
+│   ├── controllers/
+│   ├── models/
+│   └── middlewares/
+├── index.js
+└── package.json
 
-| Método | Ruta | Descripción |
-|--------|------|-------------|
-| GET | `/api/health` | Health check |
-| GET | `/api/users` | Listar todos los usuarios |
-| GET | `/api/users/:id` | Obtener usuario por ID |
-| POST | `/api/users` | Crear nuevo usuario |
-| PATCH | `/api/users/:id` | Actualizar usuario |
-| DELETE | `/api/users/:id` | Eliminar usuario |
-| GET | `/api/sia` | Listar todas las simulaciones |
-| GET | `/api/sia/:id` | Obtener simulación por ID |
-| POST | `/api/sia` | Crear nueva simulación |
-| PATCH | `/api/sia/:id` | Actualizar simulación |
-| DELETE | `/api/sia/:id` | Eliminar simulación |
-
-#### Modelos
-
-**User Model**
-```javascript
-{
-  id: int8 (integer),
-  email: string (unique),
-  password_hash: string,
-  full_name: string,
-  avatar_url: string | null,
-  role: 'freelancer' | 'recruiter' | 'admin',
-  status: 'active' | 'suspended' | 'pending_verification',
-  created_at: ISO 8601,
-  updated_at: ISO 8601
-}
+nomai-frontend/
+├── src/
+│   ├── components/
+│   ├── services/
+│   ├── App.jsx
+│   └── main.jsx
+├── vite.config.js
+└── package.json
 ```
 
-**SimSession Model**
-```javascript
-{
-  id: int8 (integer),
-  user_id: int8 (integer),
-  project_id: string,
-  company_id: string,
-  ai_persona_id: string,
-  status: 'pending' | 'active' | 'completed' | 'abandoned',
-  mode: 'learning' | 'recruitment',
-  started_at: ISO 8601 | null,
-  completed_at: ISO 8601 | null,
-  deadline: ISO 8601 | null,
-  last_activity_at: ISO 8601,
-  trigger_log: Array<{trigger_id, event, timestamp, metadata}>,
-  metadata: {
-    difficulty: string,
-    tags: Array<string>
-  },
-  created_at: ISO 8601
-}
+## Cómo correrlo localmente
+
+### Requisitos
+
+- Node.js 18 o superior
+- npm o pnpm
+
+### 1) Clonar el repositorio
+
+```bash
+git clone <url-del-repositorio>
+cd nomAI
 ```
 
-#### Formato de Respuesta
+### 2) Configurar variables de entorno
 
-Backend devuelve datos **sin envoltorio** (raw array/object):
+Crea un archivo `.env` en la raíz del proyecto con las siguientes variables:
 
-**GET /api/sia**
-```json
-[
-  {
-    "id": "simsession-001",
-    "project_id": "project-001",
-    "company_id": "company-001",
-    ...
-  }
-]
+```env
+PORT=3000
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_ANON_KEY=tu-clave-anon-de-supabase
+VITE_API_URL=http://localhost:3000/api
 ```
 
-**GET /api/users**
-```json
-[
-  {
-    "id": "user-123",
-    "email": "user@nomai.app",
-    ...
-  }
-]
+> El frontend usa `VITE_API_URL` para apuntar a la API local. Si prefieres, también podés dejarlo como `/api` y aprovechar el proxy configurado en Vite.
+
+### 3) Backend
+
+```bash
+cd nomai-backend
+npm install
+npm run dev
 ```
 
-### Frontend Services
+El backend quedará disponible en:
 
-Cada servicio expone CRUD consistente:
-
-```javascript
-// simSession.service.js & user.service.js
-export const service = {
-  getAll(),        // GET /
-  getById(id),     // GET /:id
-  create(data),    // POST /
-  update(id, data),// PATCH /:id
-  remove(id)       // DELETE /:id
-}
+```text
+http://localhost:3000
 ```
 
----
+### 4) Frontend
 
-## 🎨 Diseño Visual Implementado
-
-### Principios de diseño
-- **Dark mode premium** con fondo `#15121b` y texto principal `#e8dfee`.
-- **Glass-card effect** en tarjetas y formularios usando `backdrop-filter: blur(12px)` y bordes translucidos.
-- **Paleta de colores** basada en Stitch: púrpura `#7c3aed`, azul `#2563eb`, cian `#4cd7f6`, verde `#16a34a` y rojo `#ef4444`.
-- **Tipografía** con `Inter`, jerarquía visual clara y tamaños acordes a los diseños (headline-xl, headline-lg, body-md).
-- **Interacción** con hover suaves, botones elevados y estados de foco en inputs.
-
-### Componentes estilizados
-- **`SimSessionList`**: tarjetas responsive con estado, etiquetas de modo y estado, detalles agrupados y animación al pasar el mouse.
-- **`UserList`**: diseño coherente con `SimSessionList`, grid responsive y tarjetas glass con información del usuario.
-- **`SimSessionForm`**: formulario con contenedor glass-card, inputs estilizados y botones primarios/claro.
-- **`UserForm`**: mismo estilo que el formulario de simulaciones, con selects y botones consistentes.
-- **`Nav`**: barra de navegación glass, estado activo visible y estilo dark.
-- **`App`**: layout global con fondo oscuro, tipografía Stitch y estructura de secciones bien diferenciadas.
-- **`index.html`**: estilos globales para tipografía, scrollbars, inputs y reset básico.
-
-### Lógica preservada
-- `useEffect` con dependencias de refresco en los listados.
-- Fetch al service (`simSessionService`, `userService`) sin alterar la estructura de datos.
-- Estados de componente: `loading`, `error`, `empty`.
-- Uso de `.map()` para renderizar listas.
-- Campos originales de los modelos de sesión y usuario respetados.
-
----
-
-## 🚀 Quick Start
-
-### Backend
-
-1. Configurar variables de entorno: crea un archivo `.env` en la raíz de `nomai-backend/` (y/o en la raíz del proyecto) con las siguientes variables:
-   ```env
-   PORT=3000
-   SUPABASE_URL=https://tu_proyecto.supabase.co
-   SUPABASE_ANON_KEY=tu_clave_anon_de_supabase
-   ```
-
-2. Instalar dependencias e iniciar el servidor de desarrollo:
-   ```bash
-   cd nomai-backend
-   npm install
-   npm run dev
-   # El servidor corre en http://localhost:3000
-   ```
-
-### Frontend
+En una segunda terminal:
 
 ```bash
 cd nomai-frontend
 npm install
 npm run dev
-# App runs on http://localhost:5174
-# Vite proxy forwards /api requests to http://localhost:3000
 ```
 
----
+El frontend quedará disponible en:
 
-## ✅ Completado
+```text
+http://localhost:5173
+```
+
+## Deploy
+
+- Frontend: https://nomai-hhpbf5yg5-nomai.vercel.app/
+- Backend: https://nomai-nico.onrender.com
+
+## Nota sobre Render
+
+El backend está desplegado en Render con el tier free. Debido a la naturaleza de ese plan, la primera solicitud puede tardar unos segundos más de lo habitual por el cold start del servicio.
+
+## Futuro del proyecto
+
+Este proyecto puede evolucionar hacia una experiencia más completa con:
+
+- autenticación de usuarios;
+- simulaciones con IA más ricas;
+- métricas de desempeño y seguimiento de progreso;
+- panel administrativo para gestionar ejercicios y feedback.
+
 
 - ✅ Estructura de carpetas backend/frontend
 - ✅ Express setup con CORS + routes
