@@ -1,16 +1,19 @@
 import { useState } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import SimSessionForm from './components/SimSessionForm.jsx'
 import SimSessionList from './components/SimSessionList.jsx'
 import UserForm from './components/UserForm.jsx'
 import UserList from './components/UserList.jsx'
 import Nav from './components/Nav.jsx'
+import Landing from './components/Landing.jsx'
 
 function App() {
   const [refreshKey, setRefreshKey] = useState(0)
   const [usersRefresh, setUsersRefresh] = useState(0)
   const [editingSim, setEditingSim] = useState(null)
   const [editingUser, setEditingUser] = useState(null)
+  const { pathname } = useLocation()
+  const isLanding = pathname === '/'
 
   function handleCreated() {
     setRefreshKey((current) => current + 1)
@@ -28,30 +31,32 @@ function App() {
 
   return (
       <main style={{ 
-        padding: '24px', 
+        padding: isLanding ? '0' : '24px', 
         fontFamily: 'Inter, system-ui, sans-serif', 
-        maxWidth: '1200px', 
+        maxWidth: isLanding ? 'none' : '1200px', 
         margin: '0 auto',
         background: '#15121b',
         color: '#e8dfee',
         minHeight: '100vh'
       }}>
-        <header style={{ marginBottom: '32px' }}>
-          <h1 style={{ 
-            margin: 0, 
-            fontSize: '32px',
-            fontWeight: '700',
-            lineHeight: '40px',
-            letterSpacing: '-0.02em',
-            color: '#d2bbff'
-          }}>NomAI</h1>
-        </header>
+        {!isLanding && (
+          <header style={{ marginBottom: '32px' }}>
+            <h1 style={{ 
+              margin: 0, 
+              fontSize: '32px',
+              fontWeight: '700',
+              lineHeight: '40px',
+              letterSpacing: '-0.02em',
+              color: '#d2bbff'
+            }}>NomAI</h1>
+          </header>
+        )}
 
-      <Nav />
+      {!isLanding && <Nav />}
 
-      <div style={{ marginTop: '24px' }}>
+      <div style={{ marginTop: isLanding ? '0' : '24px' }}>
         <Routes>
-          <Route path="/" element={<Navigate to="/sim-sessions" replace />} />
+          <Route path="/" element={<Landing />} />
 
           <Route
             path="/sim-sessions"

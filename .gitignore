@@ -1,4 +1,30 @@
+# Dependencias
 node_modules
+
+# Variables de entorno
 .env
 .env.development
+.env.local
+.env.*.local
+
+# Build de producción
 dist
+
+# Tooling de AI / agentes
+.agents/
+skills-lock.json
+
+# Colección de Postman
+nomai-backend/coleccion_postman/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
